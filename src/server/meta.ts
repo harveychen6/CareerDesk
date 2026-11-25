@@ -3,6 +3,7 @@ import { aiConfigured } from '@/server/ai/client'
 import { getDb } from '@/server/db'
 import { jobTargets, profile, projects, resumes } from '@/server/db/schema'
 import { parseSkills } from '@/server/ids'
+import { projectsWithReviewedMaterials } from '@/server/materials'
 
 export function getMeta() {
   const db = getDb()
@@ -10,7 +11,8 @@ export function getMeta() {
   const projectRows = db.select().from(projects).all()
   const jobs = db.select().from(jobTargets).all()
   const targeted = db.select().from(resumes).all().filter((item) => item.type === 'targeted').length
-  const complete = projectRows.filter((project) => project.factsMarkdown.trim() && !project.todos.trim()).length
+  const reviewed = projectsWithReviewedMaterials()
+  const complete = projectRows.filter(project => reviewed.has(project.id) || (project.factsMarkdown.trim() && !project.todos.trim())).length
   return {
     aiAvailable: aiConfigured(),
     profile: {

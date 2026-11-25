@@ -1,9 +1,12 @@
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { matchJob } from '@/domain/score'
-import { getAiClient } from '@/server/ai/client'
+import { MAX_JD_LENGTH } from '@/domain/source-limits'
+import { aiConfigured, getAiClient } from '@/server/ai/client'
 import { getDb } from '@/server/db'
 import { jobKeywords, jobMatches, jobTargets, projects, resumes } from '@/server/db/schema'
 import { newId, nowIso, parseTags } from '@/server/ids'
+import { RequestError } from '@/server/request-error'
 import type { ProjectStatus } from '@/domain/score'
 
 export async function listJobs() {
@@ -24,7 +27,8 @@ export async function listJobs() {
       updatedAt: job.updatedAt,
       hasResume: resumeJobIds.has(job.id),
     }))
-    .sort((a, b) => b.matchScore - a.matchScore || b.updatedAt.localeCompare(a.updatedAt))
+    .reverse()
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
 export async function getJob(id: string) {
@@ -48,7 +52,7 @@ export async function getJob(id: string) {
     matchScore: job.matchScore,
     updatedAt: job.updatedAt,
     resumeId: resume?.id ?? null,
-    aiAvailable: Boolean(getAiClient()),
+    aiAvailable: aiConfigured(),
     keywords: keywords.map((item) => ({ text: item.text, evidence: item.evidenceStatus })),
     matches: matches.map((item) => {
       const project = byId.get(item.projectId)
@@ -64,6 +68,12 @@ export async function getJob(id: string) {
   }
 }
 
+function checkJdLength(jdText: string | undefined) {
+  if (jdText && jdText.length > MAX_JD_LENGTH) {
+    throw new RequestError('input_too_large', 413, `岗位描述超过 ${MAX_JD_LENGTH} 个字符，请缩小范围后保存`)
+  }
+}
+
 export async function createJob(input: {
   company: string
   role: string
@@ -72,6 +82,7 @@ export async function createJob(input: {
   department?: string
   jdText: string
 }) {
+  checkJdLength(input.jdText)
   const timestamp = nowIso()
   const id = newId()
   getDb().insert(jobTargets).values({
@@ -85,7 +96,23 @@ export async function createJob(input: {
     matchScore: 0,
     updatedAt: timestamp,
   }).run()
-  return analyzeJob(id)
+  return getJob(id)
+}
+
+const jobPatchSchema = z.object({
+  company: z.string().trim().min(1).optional(),
+  role: z.string().trim().min(1).optional(),
+  city: z.string().trim().optional(),
+  salary: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  jdText: z.string().optional(),
+}).strict().refine(patch => Object.keys(patch).length > 0)
+
+export function updateJob(id: string, input: z.input<typeof jobPatchSchema>) {
+  const patch = jobPatchSchema.parse(input)
+  checkJdLength(patch.jdText)
+  const result = getDb().update(jobTargets).set({ ...patch, updatedAt: nowIso() }).where(eq(jobTargets.id, id)).run()
+  return result.changes ? getJob(id) : null
 }
 
 export async function analyzeJob(id: string) {

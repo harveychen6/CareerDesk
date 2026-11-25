@@ -2,7 +2,8 @@
 
 import { DndContext, PointerSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { copy } from '@/content/zh-CN'
+import { MaterialIntake } from '@/components/projects/MaterialIntake'
+import { copy, materialsCopy } from '@/content/zh-CN'
 import { isOngoing, toMonthInput } from '@/domain/period'
 import { api, notifyChanged, statusLabel } from '@/lib/api'
 
@@ -379,6 +380,10 @@ function Drawer({ project, aiAvailable, onClose, onSaved }: { project: Project |
             {copy.facts}
             <textarea className="mt-1 h-40 w-full rounded-lg border border-[#e2e8f0] p-2 text-[12.5px] font-normal" value={draft.factsMarkdown} onChange={(event) => setDraft({ ...draft, factsMarkdown: event.target.value })} />
           </label>
+          <details className="cd-details">
+            <summary>{materialsCopy.title}</summary>
+            <div className="mt-3"><MaterialIntake projectId={draft.id} blocked={saveText === copy.saving} onChanged={onSaved} /></div>
+          </details>
           <label className="block text-[12px] font-medium">
             {copy.todos}
             <textarea className="mt-1 h-24 w-full rounded-lg border border-[#e8d49a] bg-[#fffdf8] p-2 text-[12.5px] font-normal" placeholder={copy.todoPlaceholder} value={draft.todos} onChange={(event) => setDraft({ ...draft, todos: event.target.value })} />

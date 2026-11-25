@@ -4,7 +4,7 @@ CareerDesk 是一个本地运行的个人职业工作台。公开后的交付物
 
 | 文档 | 内容 |
 | --- | --- |
-| [产品需求](requirements/product.md) | 做什么、给谁用、三条旅程与验收 |
+| [产品总需求](requirements/product.md) | 定位、现有 MVP、下一轮岗位定制简历的技术方案、实施计划与实时进度 |
 | [开源交付需求](requirements/delivery.md) | 仓库要交付什么、数据与密钥如何留在本机 |
 | [技术方案](careerdesk-mvp-design.md) | 架构、数据模型、接口与实施顺序 |
 | [轻量服务器部署](deploy-lighthouse.md) | 在自己的腾讯云轻量服务器上长期运行，以及 `main` 分支策略 |

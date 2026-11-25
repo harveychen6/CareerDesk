@@ -68,6 +68,7 @@ export const resumes = sqliteTable('resumes', {
   jobId: text('job_id'),
   summary: text('summary').notNull(),
   updatedAt: text('updated_at').notNull(),
+  currentRevisionId: text('current_revision_id'),
 })
 
 export const resumeItems = sqliteTable('resume_items', {
@@ -92,4 +93,21 @@ export const settings = sqliteTable('settings', {
   id: integer('id').primaryKey(),
   syncIntervalDays: integer('sync_interval_days').notNull(),
   lastMasterSyncAt: text('last_master_sync_at'),
+})
+
+export const resumeRevisions = sqliteTable('resume_revisions', {
+  id: text('id').primaryKey(), resumeId: text('resume_id').notNull(), revision: integer('revision').notNull(),
+  kind: text('kind').notNull(), documentJson: text('document_json').notNull(), createdAt: text('created_at').notNull(),
+})
+export const sourceMaterials = sqliteTable('source_materials', {
+  id: text('id').primaryKey(), projectId: text('project_id'), title: text('title'), content: text('content').notNull(), contentHash: text('content_hash').notNull(), createdAt: text('created_at').notNull(),
+})
+export const evidenceFacts = sqliteTable('evidence_facts', {
+  id: text('id').primaryKey(), materialId: text('material_id').notNull(), projectId: text('project_id'), text: text('text').notNull(), sourceStart: integer('source_start').notNull(), sourceEnd: integer('source_end').notNull(), status: text('status').notNull(), stage: text('stage').notNull(), revision: integer('revision').notNull(), createdAt: text('created_at').notNull(),
+})
+export const jobAnalyses = sqliteTable('job_analyses', {
+  id: text('id').primaryKey(), jobId: text('job_id').notNull(), inputHash: text('input_hash').notNull(), payloadJson: text('payload_json').notNull(), createdAt: text('created_at').notNull(),
+})
+export const tailoringProposals = sqliteTable('tailoring_proposals', {
+  id: text('id').primaryKey(), resumeId: text('resume_id').notNull(), jobId: text('job_id').notNull(), analysisId: text('analysis_id').notNull(), inputHash: text('input_hash').notNull(), baseRevision: integer('base_revision').notNull(), payloadJson: text('payload_json').notNull(), createdAt: text('created_at').notNull(),
 })

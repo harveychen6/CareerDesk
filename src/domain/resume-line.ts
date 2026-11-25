@@ -1,5 +1,9 @@
 const TRAILING_PERIOD = /((?:19|20)\d{2}(?:[.\-/]\d{1,2})?)\s*[-–—~]\s*(至今|(?:19|20)\d{2}(?:[.\-/]\d{1,2})?)\s*$/
 
+export function resumeBulletLines(text: string): string[] {
+  return text.split('\n').map(line => line.trim().replace(/^[-•]\s*/, '').trim()).filter(Boolean)
+}
+
 /** 抬头行末尾的起止时间拆到灰条右侧。也接受「名称 | 时间」。 */
 export function splitResumeHeading(line: string): { name: string; period: string } {
   const pipe = line.indexOf('|')

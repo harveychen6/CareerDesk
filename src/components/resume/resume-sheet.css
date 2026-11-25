@@ -10,6 +10,7 @@
   font-family: "Times New Roman", SimHei, "黑体", "Microsoft YaHei", sans-serif;
   font-size: 10pt;
   line-height: 1.28;
+  overflow-wrap: anywhere;
   box-shadow: 0 2px 18px rgba(31, 41, 55, .18);
 }
 
@@ -130,6 +131,13 @@
   white-space: nowrap;
 }
 
+.career-sheet .project-stage {
+  margin-left: 7px;
+  color: #555;
+  font-size: 9pt;
+  font-weight: normal;
+}
+
 .career-sheet .project { margin: 3px 0 5px; }
 
 .career-sheet p { margin: 2px 0; }
@@ -159,9 +167,13 @@
 
 .career-sheet .edu span { color: #444; }
 
-.career-sheet [contenteditable="true"]:focus {
+.career-sheet [contenteditable]:focus {
   outline: 2px solid #b7caf3;
   outline-offset: 2px;
+}
+
+.career-sheet [contenteditable] {
+  min-height: 1.28em;
 }
 
 @media print {
